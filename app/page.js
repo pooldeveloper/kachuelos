@@ -3,7 +3,7 @@
 import { useEffect, useState, useContext } from 'react';
 import FirebaseContext from '@/firebase/context';
 import Layout from '@/components/layouts/Layout';
-import DetallesProducto from '@/components/layouts/DetallesProducto';
+import DetallesProducto from '../components/layouts/DetallesProducto'
 
 export default function Home() {
 
