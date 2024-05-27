@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "./config"
 import { createUserWithEmailAndPassword, getAuth, updateProfile, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, orderBy } from "firebase/firestore"
+import { getFirestore, collection, addDoc, getDocs, orderBy, doc, getDoc } from "firebase/firestore"
 import { getStorage, getDownloadURL, uploadBytes, ref } from "firebase/storage";
 
 class Firebase {
@@ -31,25 +31,33 @@ class Firebase {
         return await signOut(this.auth)
     }
 
-    async crearDocumento(id, data) {
+    async crearColeccion(id, data) {
         return await addDoc(collection(this.db, id), data)
     }
 
-    async subirArchivo(id, archivo){
-        const referencia = ref(this.storage, id);
+    async subirArchivo(id, archivo) {
+        const storageRef = ref(this.storage, id);
 
-        await uploadBytes(referencia, archivo)
+        await uploadBytes(storageRef, archivo)
 
         return await getDownloadURL(referencia)
 
     }
 
-    async obtenerDocumento(id){
-        const querySnapshot = await getDocs(collection(this.db, 'kachuelos'), orderBy('creado', 'desc'))
+    async obtenerColeccion(id) {
+        const querySnapshot = await getDocs(collection(this.db, id), orderBy('creado', 'desc'))
 
-        return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        return await querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
     }
-}   
+
+    async obtenerDocumento(idColeccion, idDocumento) {
+        const docRef = doc(this.db, idColeccion, idDocumento);
+
+        const docSnap = await getDoc(docRef);
+
+        return await docSnap.data()
+    }
+}
 
 const firebase = new Firebase()
 

@@ -1,5 +1,5 @@
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
-import { es } from 'date-fns/locale';
+import { es } from 'date-fns/locale';
 import Link from 'next/link';
 import styled from "styled-components";
 
@@ -79,16 +79,16 @@ const Votos = styled.div`
     }
 `;
 
-const DetallesProducto = ({kachuelo}) => {
+export default function DetallesProducto({ kachuelo }) {
 
-    const { id, comentarios, creado, descripcion, empresa, nombre, url, urlImagen, votos } = kachuelo;
+    const { id, comentarios, creado, descripcion, empresa, nombre, url, urlImagen, votos } = kachuelo;
 
 
-    return ( 
+    return (
         <Producto>
             <DescripcionProducto>
                 <div>
-                    <Imagen src={urlImagen}  />
+                    <Imagen src={urlImagen} />
                 </div>
 
                 <div>
@@ -102,7 +102,7 @@ const DetallesProducto = ({kachuelo}) => {
                             <p>{comentarios.length} Comentarios</p>
                         </div>
                     </Comentarios>
-                    <p>Publicado hace: { formatDistanceToNow( new Date(creado), {locale: es} )} </p>
+                    <p>Publicado hace: {formatDistanceToNow(new Date(creado), { locale: es })} </p>
                 </div>
             </DescripcionProducto>
 
@@ -111,7 +111,5 @@ const DetallesProducto = ({kachuelo}) => {
                 <p>{votos}</p>
             </Votos>
         </Producto>
-     );
+    );
 }
- 
-export default DetallesProducto;

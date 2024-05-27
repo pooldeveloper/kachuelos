@@ -49,7 +49,7 @@ export default function Page() {
         }
 
         try {
-            await firebase.crearDocumento('kachuelos', kachuelo)
+            await firebase.crearColeccion('kachuelos', kachuelo)
         } catch (error) {
             guardarError(error.message)
             console.error("Hubo un error al crear un kachuelo", error.message);

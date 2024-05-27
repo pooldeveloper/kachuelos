@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     async function obtenerKachuelos() {
       try {
-        const kachuelos = await firebase.obtenerDocumento('kachuelos')
+        const kachuelos = await firebase.obtenerColeccion('kachuelos')
         guardarKachuelos(kachuelos)
       } catch (error) {
         console.log(error);
@@ -23,7 +23,7 @@ export default function Home() {
 
     obtenerKachuelos()
   }, [])
-  
+
   return (
     <Layout>
       <div className="listado-productos">
