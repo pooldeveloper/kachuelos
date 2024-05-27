@@ -18,6 +18,7 @@ export default function Page() {
     const router = useRouter()
 
     async function crearCuenta(data) {
+
         const { nombre, email, password } = data
 
         try {

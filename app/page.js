@@ -23,7 +23,9 @@ export default function Home() {
 
     obtenerKachuelos()
   }, [])
-
+  
+  if (kachuelos.length === 0) return 'Cargando...';
+  
   return (
     <Layout>
       <div className="listado-productos">

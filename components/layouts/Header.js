@@ -36,7 +36,7 @@ export default function Header() {
 
   async function cerrarSesion(){
     await firebase.logout()
-    router.push('/')
+    router.push('/login')
   }
   
   return (

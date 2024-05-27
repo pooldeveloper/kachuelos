@@ -4,8 +4,9 @@ import { useState, useContext } from "react";
 import FirebaseContext from "@/firebase/context";
 import { useRouter } from 'next/navigation'
 import { useForm } from "react-hook-form";
-import {v4 as uuidv4} from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import Layout from "@/components/layouts/Layout";
+import Error404 from "@/components/layouts/404";
 import { Formulario, Campo, InputSubmit, Error } from "@/components/ui/Formulario"
 
 export default function Page() {
@@ -28,7 +29,6 @@ export default function Page() {
     }
 
     async function crearKachuelo(data) {
-
         if (!usuario) {
             router.push('/login')
         }
@@ -45,7 +45,11 @@ export default function Page() {
             descripcion,
             votos: 0,
             comentarios: [],
-            creado: Date.now()
+            creado: Date.now(),
+            creador: {
+                id: usuario.uid,
+                nombre: usuario.displayName
+            }
         }
 
         try {
@@ -60,115 +64,119 @@ export default function Page() {
 
     return (
         <Layout>
-            <h1
-                css={css`
-                    text-align: center;
-                    margin-top: 5rem;
-                `}
-            >Nuevo Kachuelo</h1>
-            <Formulario onSubmit={handleSubmit(crearKachuelo)} noValidate>
-                <fieldset>
-                    <legend>Información General</legend>
-                    <Campo>
-                        <label htmlFor="nombre">Nombre</label>
-                        <input
-                            type="text"
-                            id="nombre"
-                            placeholder="Tu Nombre"
-                            name="nombre"
-                            {
-                            ...register('nombre', {
-                                required: 'El nombre es obligatorio'
-                            })
-                            }
-                        />
-                    </Campo>
+            {
+                !usuario ?
+                    <Error404 /> :
+                    <>
+                        <h1
+                            css={css`
+                                text-align: center;
+                                margin-top: 5rem;
+                            `}
+                        >Nuevo Kachuelo</h1>
+                        <Formulario onSubmit={handleSubmit(crearKachuelo)} noValidate>
+                            <fieldset>
+                                <legend>Información General</legend>
+                                <Campo>
+                                    <label htmlFor="nombre">Nombre</label>
+                                    <input
+                                        type="text"
+                                        id="nombre"
+                                        placeholder="Tu Nombre"
+                                        name="nombre"
+                                        {
+                                        ...register('nombre', {
+                                            required: 'El nombre es obligatorio'
+                                        })
+                                        }
+                                    />
+                                </Campo>
 
-                    {errors.nombre && <Error>{errors.nombre.message}</Error>}
+                                {errors.nombre && <Error>{errors.nombre.message}</Error>}
 
-                    <Campo>
-                        <label htmlFor="empresa">Empresa</label>
-                        <input
-                            type="text"
-                            id="empresa"
-                            placeholder="Nombre Empresa o Compañia"
-                            name="empresa"
-                            {
-                            ...register('empresa', {
-                                required: 'El nombre de la empresa es obligatorio'
-                            })
-                            }
-                        />
-                    </Campo>
+                                <Campo>
+                                    <label htmlFor="empresa">Empresa</label>
+                                    <input
+                                        type="text"
+                                        id="empresa"
+                                        placeholder="Nombre Empresa o Compañia"
+                                        name="empresa"
+                                        {
+                                        ...register('empresa', {
+                                            required: 'El nombre de la empresa es obligatorio'
+                                        })
+                                        }
+                                    />
+                                </Campo>
 
-                    {errors.empresa && <Error>{errors.empresa.message}</Error>}
+                                {errors.empresa && <Error>{errors.empresa.message}</Error>}
 
-                    <Campo>
-                        <label htmlFor="imagen">Imagen</label>
-                        <input
-                            type="file"
-                            id="imagen"
-                            name="imagen"
-                            {
-                            ...register('imagen', {
-                                validate: value => value.length > 0 || "La imagen es obligatoria"
-                            })
-                            }
-                        />
-                    </Campo>
+                                <Campo>
+                                    <label htmlFor="imagen">Imagen</label>
+                                    <input
+                                        type="file"
+                                        id="imagen"
+                                        name="imagen"
+                                        {
+                                        ...register('imagen', {
+                                            validate: value => value.length > 0 || "La imagen es obligatoria"
+                                        })
+                                        }
+                                    />
+                                </Campo>
 
-                    {errors.imagen && <Error>{errors.imagen.message}</Error>}
+                                {errors.imagen && <Error>{errors.imagen.message}</Error>}
 
+                                <Campo>
+                                    <label htmlFor="url">URL</label>
+                                    <input
+                                        type="url"
+                                        id="url"
+                                        placeholder="URL de tu Kachuelo"
+                                        name="url"
+                                        {
+                                        ...register('url', {
+                                            required: 'La URL es obligatoria',
+                                            pattern: {
+                                                value: /^(ftp|http|https):\/\/[^ "]+$/,
+                                                message: 'URL mal formateada o no válida'
+                                            }
+                                        })
+                                        }
+                                    />
+                                </Campo>
 
-                    <Campo>
-                        <label htmlFor="url">URL</label>
-                        <input
-                            type="url"
-                            id="url"
-                            placeholder="URL de tu Kachuelo"
-                            name="url"
-                            {
-                            ...register('url', {
-                                required: 'La URL es obligatoria',
-                                pattern: {
-                                    value: /^(ftp|http|https):\/\/[^ "]+$/,
-                                    message: 'URL mal formateada o no válida'
-                                }
-                            })
-                            }
-                        />
-                    </Campo>
+                                {errors.url && <Error>{errors.url.message}</Error>}
 
-                    {errors.url && <Error>{errors.url.message}</Error>}
+                            </fieldset>
 
-                </fieldset>
+                            <fieldset>
+                                <legend>Sobre el Kachuelo</legend>
+                                <Campo>
+                                    <label htmlFor="descripcion">Descripción</label>
+                                    <textarea
+                                        id="descripcion"
+                                        name="descripcion"
+                                        {
+                                        ...register('descripcion', {
+                                            required: 'La descripción es obligatoria'
+                                        })
+                                        }
+                                    />
+                                </Campo>
 
-                <fieldset>
-                    <legend>Sobre el Kachuelo</legend>
+                                {errors.descripcion && <Error>{errors.descripcion.message}</Error>}
+                            </fieldset>
 
-                    <Campo>
-                        <label htmlFor="descripcion">Descripción</label>
-                        <textarea
-                            id="descripcion"
-                            name="descripcion"
-                            {
-                            ...register('descripcion', {
-                                required: 'La descripción es obligatoria'
-                            })
-                            }
-                        />
-                    </Campo>
+                            {error && <Error>{error}</Error>}
 
-                    {errors.descripcion && <Error>{errors.descripcion.message}</Error>}
-                </fieldset>
-
-                {error && <Error>{error}</Error>}
-
-                <InputSubmit
-                    type="submit"
-                    value="Crear Kachuelo"
-                />
-            </Formulario>
+                            <InputSubmit
+                                type="submit"
+                                value="Crear Kachuelo"
+                            />
+                        </Formulario>
+                    </>
+            }
         </Layout>
     )
 }

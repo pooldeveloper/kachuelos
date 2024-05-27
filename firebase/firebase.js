@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "./config"
-import { createUserWithEmailAndPassword, getAuth, updateProfile, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, orderBy, doc, getDoc } from "firebase/firestore"
-import { getStorage, getDownloadURL, uploadBytes, ref } from "firebase/storage";
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getFirestore, addDoc, collection, getDocs, orderBy, doc, getDoc, query } from "firebase/firestore"
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 class Firebase {
     constructor() {
@@ -40,20 +40,28 @@ class Firebase {
 
         await uploadBytes(storageRef, archivo)
 
-        return await getDownloadURL(referencia)
+        return await getDownloadURL(storageRef)
 
     }
 
     async obtenerColeccion(id) {
-        const querySnapshot = await getDocs(collection(this.db, id), orderBy('creado', 'desc'))
+        const coleccionRef = collection(this.db, id);
 
-        return await querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        const q = query(coleccionRef, orderBy('creado', 'desc'));
+    
+        const querySnapshot = await getDocs(q);
+        
+        return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     }
 
     async obtenerDocumento(idColeccion, idDocumento) {
         const docRef = doc(this.db, idColeccion, idDocumento);
 
         const docSnap = await getDoc(docRef);
+
+        if(!docSnap.exists()){
+            return false
+        }
 
         return await docSnap.data()
     }

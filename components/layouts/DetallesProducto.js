@@ -17,7 +17,7 @@ const DescripcionProducto = styled.div`
     column-gap: 2rem;
 `;
 
-const Titulo = styled.a`
+const Titulo = styled.p`
     font-size: 2rem;
     font-weight: bold;
     margin: 0;
@@ -81,7 +81,7 @@ const Votos = styled.div`
 
 export default function DetallesProducto({ kachuelo }) {
 
-    const { id, comentarios, creado, descripcion, empresa, nombre, url, urlImagen, votos } = kachuelo;
+    const { id, comentarios, creado, descripcion, nombre, urlImagen, votos } = kachuelo;
 
 
     return (
@@ -92,9 +92,11 @@ export default function DetallesProducto({ kachuelo }) {
                 </div>
 
                 <div>
-                    <Link href={`/kachuelos/${id}`}>
-                        <Titulo>{nombre}</Titulo>
-                    </Link>
+                    <Titulo>
+                        <Link href={`/kachuelos/${id}`}>
+                            {nombre}
+                        </Link>
+                    </Titulo>
                     <TextoDescripcion>{descripcion}</TextoDescripcion>
                     <Comentarios>
                         <div>
@@ -105,7 +107,6 @@ export default function DetallesProducto({ kachuelo }) {
                     <p>Publicado hace: {formatDistanceToNow(new Date(creado), { locale: es })} </p>
                 </div>
             </DescripcionProducto>
-
             <Votos>
                 <div> &#9650; </div>
                 <p>{votos}</p>

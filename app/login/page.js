@@ -18,6 +18,7 @@ export default function Page() {
     const router = useRouter()
 
     async function iniciarSesion(data) {
+        
         const { email, password } = data
         
         try {
