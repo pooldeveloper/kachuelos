@@ -30,7 +30,7 @@ export default function Page() {
 
     async function crearKachuelo(data) {
         if (!usuario) {
-            router.push('/login')
+            return router.push('/login')
         }
 
         const { nombre, empresa, url, descripcion, imagen } = data
@@ -49,7 +49,8 @@ export default function Page() {
             creador: {
                 id: usuario.uid,
                 nombre: usuario.displayName
-            }
+            },
+            haVotado: []
         }
 
         try {
@@ -82,7 +83,7 @@ export default function Page() {
                                     <input
                                         type="text"
                                         id="nombre"
-                                        placeholder="Tu Nombre"
+                                        placeholder="Nombre del Kachuelo"
                                         name="nombre"
                                         {
                                         ...register('nombre', {
@@ -147,7 +148,6 @@ export default function Page() {
                                 </Campo>
 
                                 {errors.url && <Error>{errors.url.message}</Error>}
-
                             </fieldset>
 
                             <fieldset>

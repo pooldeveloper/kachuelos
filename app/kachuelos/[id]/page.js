@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useContext } from 'react';
 import { useParams } from "next/navigation";
+import { useRouter } from 'next/navigation'
 import FirebaseContext from '@/firebase/context';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import { es } from 'date-fns/locale';
@@ -32,21 +33,26 @@ const CreadorProducto = styled.p`
 export default function Page() {
 
     const { id } = useParams()
+    const router = useRouter()
 
     const { firebase, usuario } = useContext(FirebaseContext)
 
     const [kachuelo, guardarKachuelo] = useState({})
     const [error, guardarError] = useState(false);
+    const [comentario, guardarComentario] = useState({});
+    const [consultarDB, guardarConsultarDB] = useState(true);
 
     useEffect(() => {
-        if (id) {
+        if (id && consultarDB) {
             async function obtenerKachuelo() {
                 try {
                     const kachuelo = await firebase.obtenerDocumento('kachuelos', id)
                     if (kachuelo) {
                         guardarKachuelo(kachuelo)
+                        guardarConsultarDB(false)
                     } else {
                         guardarError(true)
+                        guardarConsultarDB(false)
                     }
                 } catch (error) {
                     console.log(error);
@@ -54,16 +60,100 @@ export default function Page() {
             }
             obtenerKachuelo()
         }
-    }, [])
+    }, [id])
 
     if (Object.keys(kachuelo).length === 0 && !error) return 'Cargando...';
 
     const { comentarios, creado, descripcion, empresa, nombre, urlImagen, url, votos, creador, haVotado } = kachuelo;
 
-    function votarKachuelo(){
-        
+    async function votarKachuelo() {
+        if (!usuario) {
+            return router.push('/login')
+        }
+
+        const nuevoTotal = votos + 1
+
+        if (haVotado.includes(usuario.uid)) return;
+
+        const nuevoHaVotado = [...haVotado, usuario.uid]
+
+        try {
+            await firebase.actualizarDocumento('kachuelos', id, { votos: nuevoTotal, haVotado: nuevoHaVotado })
+        } catch (error) {
+            console.error("Hubo un error al agregar un voto", error.message);
+        }
+
+        guardarKachuelo({
+            ...kachuelo,
+            votos: nuevoTotal
+        })
+
+        guardarConsultarDB(true)
     }
 
+    function comentarioChange(e) {
+        guardarComentario({
+            ...comentario,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    function esCreador(id) {
+        if (creador.id == id) {
+            return true;
+        }
+    }
+
+    async function agregarComentario(e) {
+        e.preventDefault();
+
+        if (!usuario) {
+            return router.push('/login')
+        }
+
+        comentario.usuarioId = usuario.uid;
+        comentario.usuarioNombre = usuario.displayName;
+
+        const nuevosComentarios = [...comentarios, comentario];
+
+        try {
+            await firebase.actualizarDocumento('kachuelos', id, { comentarios: nuevosComentarios })
+        } catch (error) {
+            console.error("Hubo un error al agregar un voto", error.message);
+        }
+
+        guardarKachuelo({
+            ...kachuelo,
+            comentarios: nuevosComentarios
+        })
+
+        guardarConsultarDB(true)
+    }
+
+    function puedeBorrar() {
+        if (!usuario) return false;
+
+        if (creador.id === usuario.uid) {
+            return true
+        }
+    }
+
+    async function eliminarProducto() {
+        if (!usuario) {
+            return router.push('/login')
+        }
+
+        if (creador.id !== usuario.uid) {
+            return router.push('/')
+        }
+
+        try {
+            await firebase.eliminarDocumento('kachuelos', id)
+            router.push('/')
+        } catch (error) {
+            console.error("Hubo un error al eliminar el kachuelo", error.message);
+        }
+    }
     return (
         <Layout>
             {
@@ -86,12 +176,14 @@ export default function Page() {
                                         <>
                                             <h2>Agrega tu comentario</h2>
                                             <form
-
+                                                onSubmit={agregarComentario}
                                             >
                                                 <Campo>
                                                     <input
+                                                        required
                                                         type="text"
                                                         name="mensaje"
+                                                        onChange={comentarioChange}
                                                     />
                                                 </Campo>
                                                 <InputSubmit
@@ -99,7 +191,6 @@ export default function Page() {
                                                     value="Agregar Comentario"
                                                 />
                                             </form>
-
                                         </>
                                 }
 
@@ -127,7 +218,7 @@ export default function Page() {
                                                         {''} {comentario.usuarioNombre}
                                                     </span>
                                                 </p>
-                                                <CreadorProducto>Es Creador</CreadorProducto>
+                                                {esCreador(comentario.usuarioId) && <CreadorProducto>Es Creador</CreadorProducto>}
                                             </li>
                                         ))}
                                     </ul>
@@ -136,20 +227,20 @@ export default function Page() {
                             </div>
 
                             <aside>
-                                <Boton
-                                    css={css`
-                                        width: 100%;
-                                    `}
-                                    $bgColor="true"
+                                <a
+                                    href={url}
+                                    target="_blank"
                                 >
-                                    <a 
-                                        href={url} 
-                                        target="_blank"
+                                    <Boton
+                                        css={css`
+                                                width: 100%;
+                                            `}
+                                        $bgColor="true"
                                     >
-                                        Visitar URL
-                                    </a>
-                                </Boton>
 
+                                        Visitar URL
+                                    </Boton>
+                                </a>
                                 <div
                                     css={css`
                                             margin-top: 5rem;
@@ -160,8 +251,8 @@ export default function Page() {
                                         `}>{votos} Votos</p>
 
 
-                                 {
-                                    usuario && 
+                                    {
+                                        usuario &&
                                         <Boton
                                             css={css`
                                                 width: 100%;
@@ -170,15 +261,12 @@ export default function Page() {
                                         >
                                             Votar
                                         </Boton>
-                                 }
+                                    }
                                 </div>
                             </aside>
                         </ContenedorProducto>
 
-                        {
-                            usuario && 
-                                <Boton>Eliminar Producto</Boton>
-                        }
+                        {puedeBorrar() && <Boton onClick={eliminarProducto} >Eliminar Producto</Boton>}
                     </div>
                 )
             }

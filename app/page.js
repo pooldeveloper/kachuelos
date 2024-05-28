@@ -9,7 +9,7 @@ export default function Home() {
 
   const { firebase } = useContext(FirebaseContext)
 
-  const [kachuelos, guardarKachuelos] = useState([])
+  const [kachuelos, guardarKachuelos] = useState(null)
 
   useEffect(() => {
     async function obtenerKachuelos() {
@@ -24,7 +24,7 @@ export default function Home() {
     obtenerKachuelos()
   }, [])
   
-  if (kachuelos.length === 0) return 'Cargando...';
+  if (!kachuelos) return 'Cargando...';
   
   return (
     <Layout>

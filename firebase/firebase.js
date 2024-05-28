@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "./config"
 import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, addDoc, collection, getDocs, orderBy, doc, getDoc, query } from "firebase/firestore"
+import { getFirestore, addDoc, collection, getDocs, orderBy, doc, getDoc, query, updateDoc, deleteDoc } from "firebase/firestore"
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 class Firebase {
@@ -64,6 +64,16 @@ class Firebase {
         }
 
         return await docSnap.data()
+    }
+
+    async actualizarDocumento(idColeccion, idDocumento, data){
+        const docRef = doc(this.db, idColeccion, idDocumento);
+        return await updateDoc(docRef, data);
+    }
+
+    async eliminarDocumento(idColeccion, idDocumento){
+        const docRef = doc(this.db, idColeccion, idDocumento);
+        return await deleteDoc(docRef);
     }
 }
 
