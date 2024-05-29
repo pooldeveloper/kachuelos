@@ -10,7 +10,8 @@ export default function Page() {
 
     const [resultados, guardarResultados] = useState([])
 
-    const q = useSearchParams().get('q')
+    const searchParams = useSearchParams();
+    const q = searchParams.get('q');
 
     const kachuelos = useKachuelos('kachuelos', 'creado', 'desc')
 
