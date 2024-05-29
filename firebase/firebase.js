@@ -44,10 +44,10 @@ class Firebase {
 
     }
 
-    async obtenerColeccion(id) {
+    async obtenerColeccion(id, campo,  orden) {
         const coleccionRef = collection(this.db, id);
 
-        const q = query(coleccionRef, orderBy('creado', 'desc'));
+        const q = query(coleccionRef, orderBy(campo, orden));
     
         const querySnapshot = await getDocs(q);
         

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import FirebaseContext from '@/firebase/context';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 import { es } from 'date-fns/locale';
+import { useForm } from "react-hook-form";
 import styled from 'styled-components';
 import Layout from '@/components/layouts/Layout';
 import Error404 from '@/components/layouts/404';
@@ -37,9 +38,10 @@ export default function Page() {
 
     const { firebase, usuario } = useContext(FirebaseContext)
 
+    const { register, handleSubmit } = useForm()
+
     const [kachuelo, guardarKachuelo] = useState({})
     const [error, guardarError] = useState(false);
-    const [comentario, guardarComentario] = useState({});
     const [consultarDB, guardarConsultarDB] = useState(true);
 
     useEffect(() => {
@@ -91,28 +93,24 @@ export default function Page() {
         guardarConsultarDB(true)
     }
 
-    function comentarioChange(e) {
-        guardarComentario({
-            ...comentario,
-            [e.target.name]: e.target.value
-        })
-    }
-
     function esCreador(id) {
         if (creador.id == id) {
             return true;
         }
     }
 
-    async function agregarComentario(e) {
-        e.preventDefault();
+    async function agregarComentario(data) {
+        const { mensaje } = data
 
         if (!usuario) {
             return router.push('/login')
         }
 
-        comentario.usuarioId = usuario.uid;
-        comentario.usuarioNombre = usuario.displayName;
+        const comentario = {
+            mensaje,
+            usuariId: usuario.uid,
+            usuarioNombre: usuario.displayName
+        }
 
         const nuevosComentarios = [...comentarios, comentario];
 
@@ -154,6 +152,7 @@ export default function Page() {
             console.error("Hubo un error al eliminar el kachuelo", error.message);
         }
     }
+
     return (
         <Layout>
             {
@@ -173,25 +172,28 @@ export default function Page() {
 
                                 {
                                     usuario &&
-                                        <>
-                                            <h2>Agrega tu comentario</h2>
-                                            <form
-                                                onSubmit={agregarComentario}
-                                            >
-                                                <Campo>
-                                                    <input
-                                                        required
-                                                        type="text"
-                                                        name="mensaje"
-                                                        onChange={comentarioChange}
-                                                    />
-                                                </Campo>
-                                                <InputSubmit
-                                                    type="submit"
-                                                    value="Agregar Comentario"
+                                    <>
+                                        <h2>Agrega tu comentario</h2>
+                                        <form
+                                            onSubmit={handleSubmit(agregarComentario)}
+                                        >
+                                            <Campo>
+                                                <input
+                                                    type="text"
+                                                    name="mensaje"
+                                                    {
+                                                    ...register('mensaje', {
+                                                        required: 'El comentario esta vacio'
+                                                    })
+                                                    }
                                                 />
-                                            </form>
-                                        </>
+                                            </Campo>
+                                            <InputSubmit
+                                                type="submit"
+                                                value="Agregar Comentario"
+                                            />
+                                        </form>
+                                    </>
                                 }
 
                                 <h2 css={css`

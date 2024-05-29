@@ -1,31 +1,15 @@
 'use client';
 
-import { useEffect, useState, useContext } from 'react';
-import FirebaseContext from '@/firebase/context';
+import useKachuelos from '@/hooks/useKachuelos';
 import Layout from '@/components/layouts/Layout';
-import DetallesProducto from '../components/layouts/DetallesProducto'
+import DetallesProducto from '@/components/layouts/DetallesProducto';
 
 export default function Home() {
 
-  const { firebase } = useContext(FirebaseContext)
+  const kachuelos = useKachuelos('kachuelos', 'creado', 'desc')
 
-  const [kachuelos, guardarKachuelos] = useState(null)
-
-  useEffect(() => {
-    async function obtenerKachuelos() {
-      try {
-        const kachuelos = await firebase.obtenerColeccion('kachuelos')
-        guardarKachuelos(kachuelos)
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    obtenerKachuelos()
-  }, [])
-  
   if (!kachuelos) return 'Cargando...';
-  
+
   return (
     <Layout>
       <div className="listado-productos">

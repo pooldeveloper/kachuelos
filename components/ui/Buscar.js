@@ -1,3 +1,7 @@
+'use client'
+
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 
 const InputText = styled.input`
@@ -5,6 +9,7 @@ const InputText = styled.input`
     padding: 1rem;
     min-width: 300px;
 `;
+
 const InputSubmit = styled.button`
     height: 3rem;
     width: 3rem;
@@ -25,14 +30,33 @@ const InputSubmit = styled.button`
 `;
 
 export default function Buscar() {
+
+  const { register, handleSubmit } = useForm()
+
+  const router = useRouter()
+
+  function buscar(data) {
+    const { busqueda } = data
+    router.push(`/buscar?q=${busqueda}`)
+  }
+
   return (
     <form
       css={css`
       position: relative;
     `}
+      onSubmit={handleSubmit(buscar)}
     >
-        <InputText type="text"/>
-        <InputSubmit type="submit">Buscar</InputSubmit>
+      <InputText
+        type="text"
+        name="busqueda"
+        {
+        ...register('busqueda', {
+          required: 'La busqueda esta vacia'
+        })
+        }
+      />
+      <InputSubmit type="submit">Buscar</InputSubmit>
     </form>
   )
 }
